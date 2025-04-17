@@ -1,0 +1,99 @@
+Loading data from /oak/stanford/groups/russpold/data/network_grant/discovery_BIDS_20250402/derivatives/output_lev1
+Skipping flanker, sub-s10 due to error: Expected 1 VIF file, found 0
+Skipping nBack, sub-s03 due to error: index 0 is out of bounds for axis 0 with size 0
+Skipping nBack, sub-s29 due to error: index 0 is out of bounds for axis 0 with size 0
+Skipping nBack, sub-s19 due to error: index 0 is out of bounds for axis 0 with size 0
+Skipping nBack, sub-s10 due to error: index 0 is out of bounds for axis 0 with size 0
+Skipping nBack, sub-s43 due to error: index 0 is out of bounds for axis 0 with size 0
+Found 40 unique contrasts
+Processing 40 contrasts
+Processing contrast 1/40: cuedTS: cue_switch_cost
+Saved /home/users/jmumford/zstat_slice_grids/png_files/00_cuedTS-_cue_switch_cost_zstat_slice_grid.png
+Processing contrast 2/40: cuedTS: response_time
+Saved /home/users/jmumford/zstat_slice_grids/png_files/01_cuedTS-_response_time_zstat_slice_grid.png
+Processing contrast 3/40: cuedTS: task-baseline
+Saved /home/users/jmumford/zstat_slice_grids/png_files/02_cuedTS-_task-baseline_zstat_slice_grid.png
+Processing contrast 4/40: cuedTS: task_switch_cost
+Saved /home/users/jmumford/zstat_slice_grids/png_files/03_cuedTS-_task_switch_cost_zstat_slice_grid.png
+Processing contrast 5/40: cuedTS: task_switch_cue_switch-task_stay_cue_stay
+Saved /home/users/jmumford/zstat_slice_grids/png_files/04_cuedTS-_task_switch_cue_switch-task_stay_cue_stay_zstat_slice_grid.png
+Completed 5/40 contrasts
+Processing contrast 6/40: directedForgetting: neg-con
+Saved /home/users/jmumford/zstat_slice_grids/png_files/05_directedForgetting-_neg-con_zstat_slice_grid.png
+Processing contrast 7/40: directedForgetting: response_time
+Saved /home/users/jmumford/zstat_slice_grids/png_files/06_directedForgetting-_response_time_zstat_slice_grid.png
+Processing contrast 8/40: directedForgetting: task-baseline
+Saved /home/users/jmumford/zstat_slice_grids/png_files/07_directedForgetting-_task-baseline_zstat_slice_grid.png
+Processing contrast 9/40: flanker: incongruent-congruent
+Saved /home/users/jmumford/zstat_slice_grids/png_files/08_flanker-_incongruent-congruent_zstat_slice_grid.png
+Processing contrast 10/40: flanker: response_time
+Saved /home/users/jmumford/zstat_slice_grids/png_files/09_flanker-_response_time_zstat_slice_grid.png
+Completed 10/40 contrasts
+Processing contrast 11/40: flanker: task-baseline
+Saved /home/users/jmumford/zstat_slice_grids/png_files/10_flanker-_task-baseline_zstat_slice_grid.png
+Processing contrast 12/40: goNogo: go
+Saved /home/users/jmumford/zstat_slice_grids/png_files/11_goNogo-_go_zstat_slice_grid.png
+Processing contrast 13/40: goNogo: nogo_success
+Saved /home/users/jmumford/zstat_slice_grids/png_files/12_goNogo-_nogo_success_zstat_slice_grid.png
+Processing contrast 14/40: goNogo: nogo_success-go
+Saved /home/users/jmumford/zstat_slice_grids/png_files/13_goNogo-_nogo_success-go_zstat_slice_grid.png
+Processing contrast 15/40: goNogo: response_time
+Saved /home/users/jmumford/zstat_slice_grids/png_files/14_goNogo-_response_time_zstat_slice_grid.png
+Completed 15/40 contrasts
+Processing contrast 16/40: goNogo: task-baseline
+Saved /home/users/jmumford/zstat_slice_grids/png_files/15_goNogo-_task-baseline_zstat_slice_grid.png
+Processing contrast 17/40: shapeMatching: DDD
+Saved /home/users/jmumford/zstat_slice_grids/png_files/16_shapeMatching-_DDD_zstat_slice_grid.png
+Processing contrast 18/40: shapeMatching: DDS
+Saved /home/users/jmumford/zstat_slice_grids/png_files/17_shapeMatching-_DDS_zstat_slice_grid.png
+Processing contrast 19/40: shapeMatching: DNN
+Saved /home/users/jmumford/zstat_slice_grids/png_files/18_shapeMatching-_DNN_zstat_slice_grid.png
+Processing contrast 20/40: shapeMatching: DSD
+Saved /home/users/jmumford/zstat_slice_grids/png_files/19_shapeMatching-_DSD_zstat_slice_grid.png
+Completed 20/40 contrasts
+Processing contrast 21/40: shapeMatching: SDD
+Saved /home/users/jmumford/zstat_slice_grids/png_files/20_shapeMatching-_SDD_zstat_slice_grid.png
+Processing contrast 22/40: shapeMatching: SNN
+Saved /home/users/jmumford/zstat_slice_grids/png_files/21_shapeMatching-_SNN_zstat_slice_grid.png
+Processing contrast 23/40: shapeMatching: SSS
+Saved /home/users/jmumford/zstat_slice_grids/png_files/22_shapeMatching-_SSS_zstat_slice_grid.png
+Processing contrast 24/40: shapeMatching: main_vars
+Saved /home/users/jmumford/zstat_slice_grids/png_files/23_shapeMatching-_main_vars_zstat_slice_grid.png
+Processing contrast 25/40: shapeMatching: response_time
+Saved /home/users/jmumford/zstat_slice_grids/png_files/24_shapeMatching-_response_time_zstat_slice_grid.png
+Completed 25/40 contrasts
+Processing contrast 26/40: shapeMatching: task-baseline
+Saved /home/users/jmumford/zstat_slice_grids/png_files/25_shapeMatching-_task-baseline_zstat_slice_grid.png
+Processing contrast 27/40: spatialTS: cue_switch_cost
+Saved /home/users/jmumford/zstat_slice_grids/png_files/26_spatialTS-_cue_switch_cost_zstat_slice_grid.png
+Processing contrast 28/40: spatialTS: response_time
+Saved /home/users/jmumford/zstat_slice_grids/png_files/27_spatialTS-_response_time_zstat_slice_grid.png
+Processing contrast 29/40: spatialTS: task-baseline
+Saved /home/users/jmumford/zstat_slice_grids/png_files/28_spatialTS-_task-baseline_zstat_slice_grid.png
+Processing contrast 30/40: spatialTS: task_switch_cost
+Saved /home/users/jmumford/zstat_slice_grids/png_files/29_spatialTS-_task_switch_cost_zstat_slice_grid.png
+Completed 30/40 contrasts
+Processing contrast 31/40: spatialTS: task_switch_cue_switch-task_stay_cue_stay
+Saved /home/users/jmumford/zstat_slice_grids/png_files/30_spatialTS-_task_switch_cue_switch-task_stay_cue_stay_zstat_slice_grid.png
+Processing contrast 32/40: stopSignal: go
+Saved /home/users/jmumford/zstat_slice_grids/png_files/31_stopSignal-_go_zstat_slice_grid.png
+Processing contrast 33/40: stopSignal: response_time
+Saved /home/users/jmumford/zstat_slice_grids/png_files/32_stopSignal-_response_time_zstat_slice_grid.png
+Processing contrast 34/40: stopSignal: stop_failure
+Saved /home/users/jmumford/zstat_slice_grids/png_files/33_stopSignal-_stop_failure_zstat_slice_grid.png
+Processing contrast 35/40: stopSignal: stop_failure-go
+Saved /home/users/jmumford/zstat_slice_grids/png_files/34_stopSignal-_stop_failure-go_zstat_slice_grid.png
+Completed 35/40 contrasts
+Processing contrast 36/40: stopSignal: stop_failure-stop_success
+Saved /home/users/jmumford/zstat_slice_grids/png_files/35_stopSignal-_stop_failure-stop_success_zstat_slice_grid.png
+Processing contrast 37/40: stopSignal: stop_success
+Saved /home/users/jmumford/zstat_slice_grids/png_files/36_stopSignal-_stop_success_zstat_slice_grid.png
+Processing contrast 38/40: stopSignal: stop_success-go
+Saved /home/users/jmumford/zstat_slice_grids/png_files/37_stopSignal-_stop_success-go_zstat_slice_grid.png
+Processing contrast 39/40: stopSignal: stop_success-stop_failure
+Saved /home/users/jmumford/zstat_slice_grids/png_files/38_stopSignal-_stop_success-stop_failure_zstat_slice_grid.png
+Processing contrast 40/40: stopSignal: task-baseline
+Saved /home/users/jmumford/zstat_slice_grids/png_files/39_stopSignal-_task-baseline_zstat_slice_grid.png
+Completed 40/40 contrasts
+Combining 40 PNG files into PDF: /home/users/jmumford/zstat_slice_grids/zstat_slice_grid_report.pdf
+PDF created successfully: /home/users/jmumford/zstat_slice_grids/zstat_slice_grid_report.pdf
