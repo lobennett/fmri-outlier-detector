@@ -9,8 +9,9 @@ wheels/
 # Virtual environments
 .venv
 
-# Cannot copy ABCD data
+# don't want this!
 sherlock_output
+Old/
 
 # VS Code settings
 .vscode
