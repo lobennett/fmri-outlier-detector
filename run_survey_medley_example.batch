@@ -12,4 +12,4 @@
 uv --directory /home/users/jmumford/vif_exploration run python /home/users/jmumford/vif_exploration/survey_medley_example.py \
     --contrast_dir /oak/stanford/groups/russpold/data/uh2/aim1/derivatives/output_surveyMedley_noderivs_factors/surveyMedley_lev1_output/task_surveyMedley_rtmodel_rt_uncentered/contrast_estimates \
     --html_path /oak/stanford/groups/russpold/data/uh2/aim1/derivatives/output_surveyMedley_noderivs_factors/surveyMedley_lev1_output/task_surveyMedley_rtmodel_rt_uncentered/contrasts_task_surveyMedley_rtmodel_rt_uncentered_model_summary.html \
-    --output_dir /home/users/jmumford/vif_exploration/survey_medley_output_new
+    --output_dir /home/users/jmumford/vif_exploration/survey_medley_output_example
