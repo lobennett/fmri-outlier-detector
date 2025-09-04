@@ -124,9 +124,7 @@ def _plot_faceted_histogram(df: pd.DataFrame, output_dir: str) -> str:
     g.set_titles('{col_name}')
     g.set_axis_labels('Image-Specific Outlier Percentage', 'Frequency')
 
-    path_by_contrast = os.path.join(
-        output_dir, 'outlier_percentage_dist_by_image.png'
-    )
+    path_by_contrast = os.path.join(output_dir, 'outlier_percentage_dist_by_image.png')
     plt.tight_layout()
     g.savefig(path_by_contrast, dpi=300)
     plt.close(g.fig)
@@ -135,7 +133,7 @@ def _plot_faceted_histogram(df: pd.DataFrame, output_dir: str) -> str:
 
 def _plot_subject_grid(
     subject_labels: List[str],
-    vif_labels: List[str], # New argument for VIF info
+    vif_labels: List[str],  # New argument for VIF info
     nifti_paths: List[str],
     outlier_percentages: List[float],
     mni_mask: np.ndarray,
@@ -149,6 +147,7 @@ def _plot_subject_grid(
     Plot a grid of subject images with outlier percentages.
     """
     import re
+
     subject_sessions = {}
     for i, label in enumerate(subject_labels):
         match = re.match(r'(sub-[^_\s]+)', label)
@@ -160,33 +159,39 @@ def _plot_subject_grid(
 
     unique_subjects = sorted(list(subject_sessions.keys()))
     nrows = len(unique_subjects)
-    ncols = max(len(sessions) for sessions in subject_sessions.values()) if unique_subjects else 1
-    
-    print(f"Found {nrows} unique subjects with max {ncols} sessions per subject")
+    ncols = (
+        max(len(sessions) for sessions in subject_sessions.values())
+        if unique_subjects
+        else 1
+    )
+
+    print(f'Found {nrows} unique subjects with max {ncols} sessions per subject')
 
     subplot_width, subplot_height = 2.0, 1.6
     fig_width = ncols * subplot_width
     fig_height = nrows * subplot_height + 1.5
     fig = plt.figure(figsize=(fig_width, fig_height))
-    
+
     # CORRECTED: Set wspace to 1.0
     gs = GridSpec(nrows, ncols, figure=fig, wspace=1.0, hspace=0.4)
 
-    title_fontsize = 9 if len(unique_subjects) <= 20 else 7 if len(unique_subjects) <= 50 else 5
+    title_fontsize = (
+        9 if len(unique_subjects) <= 20 else 7 if len(unique_subjects) <= 50 else 5
+    )
 
     for row, subject_id in enumerate(unique_subjects):
         session_indices = subject_sessions[subject_id]
         print(f'Processing subject {subject_id} with {len(session_indices)} sessions')
-        
+
         for col, session_idx in enumerate(session_indices):
             label = subject_labels[session_idx]
-            vif_label = vif_labels[session_idx] # Get the corresponding VIF label
+            vif_label = vif_labels[session_idx]  # Get the corresponding VIF label
             path = nifti_paths[session_idx]
             outlier = outlier_percentages[session_idx]
-            
+
             print(f'  Session {col + 1}: {label}')
             ax = fig.add_subplot(gs[row, col])
-            
+
             display = plotting.plot_stat_map(
                 path,
                 display_mode='z',
@@ -232,14 +237,14 @@ def _build_outlier_summary_df(
         'image_outlier_percentage': image_outlier_percentages,
         'contrast_name': [contrast_name] * len(subject_labels),
     }
-    
+
     if task_name is not None:
         data['task_name'] = [task_name] * len(subject_labels)
     if contrast_only is not None:
         data['contrast_only'] = [contrast_only] * len(subject_labels)
     if session_ids is not None:
         data['session_id'] = session_ids
-    
+
     return pd.DataFrame(data)
 
 
@@ -282,7 +287,7 @@ def combine_pngs_to_pdf(png_files: List[str], pdf_path: str) -> None:
 
 def generate_png_files_sd_from_mean(
     image_labels: List[str],
-    vif_labels: List[str], # New argument
+    vif_labels: List[str],  # New argument
     nifti_paths: List[str],
     output_dir: str,
     main_title: str,
@@ -304,7 +309,7 @@ def generate_png_files_sd_from_mean(
 
     fig = _plot_subject_grid(
         image_labels,
-        vif_labels, # Pass VIF labels down
+        vif_labels,  # Pass VIF labels down
         nifti_paths,
         image_outlier_percentages,
         mni_mask,
@@ -324,7 +329,12 @@ def generate_png_files_sd_from_mean(
     time.sleep(0.5)
 
     summary_df = _build_outlier_summary_df(
-        image_labels, image_outlier_percentages, main_title, task_name, contrast_only, session_ids
+        image_labels,
+        image_outlier_percentages,
+        main_title,
+        task_name,
+        contrast_only,
+        session_ids,
     )
 
     return png_path, summary_df
@@ -335,20 +345,26 @@ class DataDictionary:
     main_title: str
     nifti_paths: List[str]
     image_labels: List[str]
-    vif_labels: List[str] # New field
+    vif_labels: List[str]  # New field
     data_type_label: str
 
 
 def validate_data_dictionary(data_dict: Dict[str, Any]) -> DataDictionary:
     """Validate and convert a dictionary to a DataDictionary object."""
-    required_keys = ['main_title', 'nifti_paths', 'image_labels', 'vif_labels', 'data_type_label']
+    required_keys = [
+        'main_title',
+        'nifti_paths',
+        'image_labels',
+        'vif_labels',
+        'data_type_label',
+    ]
     for key in required_keys:
         if key not in data_dict:
             raise ValueError(f'Missing required key: {key}')
 
     if len(data_dict['nifti_paths']) != len(data_dict['image_labels']):
         raise ValueError("Length of 'nifti_paths' and 'image_labels' must be the same")
-    
+
     if len(data_dict['nifti_paths']) != len(data_dict['vif_labels']):
         raise ValueError("Length of 'nifti_paths' and 'vif_labels' must be the same")
 
@@ -378,10 +394,10 @@ def generate_all_data_summaries(
         task_name = data_dictionaries[i].get('task_name')
         contrast_only = data_dictionaries[i].get('contrast_name')
         session_ids = data_dictionaries[i].get('session_ids')
-        
+
         file_name, outlier_data = generate_png_files_sd_from_mean(
             data.image_labels,
-            data.vif_labels, # Pass VIF labels
+            data.vif_labels,  # Pass VIF labels
             data.nifti_paths,
             temp_output_dir,
             data.main_title,
