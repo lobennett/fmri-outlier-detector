@@ -1,3 +1,7 @@
+# Log files
+*err
+*out
+
 # Python-generated files
 __pycache__/
 *.py[oc]
