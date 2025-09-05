@@ -118,11 +118,8 @@ def main():
             raise FileNotFoundError(f'Input file not found at: {input_file}')
 
         df = pd.read_csv(input_file)
-        df['VIF'] = df['subject_label'].str.extract(r'\(vif=([\d\.]+)\)')
-        df['VIF'] = pd.to_numeric(df['VIF'], errors='coerce')
         print('Successfully loaded and preprocessed data.')
 
-        # Step 2: Flag scans based on criteria
         crit1 = (df['VIF'] >= thresholds['vif_combined']) & (
             df['image_outlier_percentage'] >= thresholds['outlier_combined']
         )
