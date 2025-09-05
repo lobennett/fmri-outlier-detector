@@ -16,31 +16,21 @@ def parse_bids_entities(path: str) -> Dict[str, Optional[str]]:
     Extracts BIDS-like entities from a filepath using robust, non-greedy patterns.
     """
     filename = os.path.basename(path)
-    entities = {
-        'subject': None,
-        'session': None,
-        'run': None,
-        'task': None,
-        'contrast': None,
-        'sub_ses_key': None,
+    patterns = {
+        'subject': re.compile(r'sub-s([^_]+)'),
+        'session': re.compile(r'ses-([^_]+)'),
+        'run': re.compile(r'run-([^_]+)'),
+        'task': re.compile(r'task-([^_]+)'),
+        'contrast': re.compile(r'contrast-(.+?)_rtmodel'),
     }
 
-    sub_match = re.search(r'sub-s([^_]+)', filename)
-    ses_match = re.search(r'ses-([^_]+)', filename)
-    run_match = re.search(r'run-([^_]+)', filename)
-    task_match = re.search(r'task-([^_]+)', filename)
-    contrast_match = re.search(r'contrast-(.+?)_rtmodel', filename)
+    entities = {key: None for key in patterns}
+    entities['sub_ses_key'] = None
 
-    if sub_match:
-        entities['subject'] = sub_match.group(1)
-    if ses_match:
-        entities['session'] = ses_match.group(1)
-    if run_match:
-        entities['run'] = run_match.group(1)
-    if task_match:
-        entities['task'] = task_match.group(1)
-    if contrast_match:
-        entities['contrast'] = contrast_match.group(1)
+    for key, pattern in patterns.items():
+        match = pattern.search(filename)
+        if match:
+            entities[key] = match.group(1)
 
     if entities['subject'] and entities['session']:
         entities['sub_ses_key'] = (
@@ -74,7 +64,9 @@ def extract_vif_from_csv(csv_path: str) -> Dict[str, float]:
 
 def find_vif_files(base_dir: str) -> Dict[str, Dict[str, float]]:
     """Finds and reads all VIF CSV files, returning a nested dictionary."""
-    vif_pattern = f'{base_dir}/sub-s*/*/quality_control/*_contrast_vifs.csv'
+    vif_pattern = os.path.join(
+        base_dir, 'sub-s*', '*', 'quality_control', '*_contrast_vifs.csv'
+    )
     vif_files = glob(vif_pattern)
     print(f'Found {len(vif_files)} VIF files.')
 
@@ -93,7 +85,6 @@ def get_contrast_vif_labels(
     """Generates VIF labels for a list of NIfTI paths."""
     vif_labels = []
     for path in nifti_paths:
-        filename = os.path.basename(path)
         entities = parse_bids_entities(path)
         label = '(vif=?)'
 
@@ -105,12 +96,12 @@ def get_contrast_vif_labels(
                     vif_value = vif_data[vif_key][contrast_name]
                     label = f'(vif={vif_value:.2f})'
                 else:
-                    print(f'\n[DEBUG] VIF MISS for {filename}:')
+                    print(f'\n[DEBUG] VIF MISS for {os.path.basename(path)}:')
                     print(f"  > Looking for contrast: '{contrast_name}'")
                     print(f'  > Available contrasts: {list(vif_data[vif_key].keys())}')
             else:
                 print(
-                    f"\n[DEBUG] VIF KEY NOT FOUND for {filename}: > Generated Key: '{vif_key}'"
+                    f"\n[DEBUG] VIF KEY NOT FOUND for {os.path.basename(path)}: > Generated Key: '{vif_key}'"
                 )
         vif_labels.append(label)
     return vif_labels
@@ -118,7 +109,9 @@ def get_contrast_vif_labels(
 
 def find_nifti_files(base_dir: str) -> List[str]:
     """Finds all stat-effect-size.nii.gz files."""
-    nifti_pattern = f'{base_dir}/sub-s*/*/indiv_contrasts/*stat-effect-size.nii.gz'
+    nifti_pattern = os.path.join(
+        base_dir, 'sub-s*', '*', 'indiv_contrasts', '*stat-effect-size.nii.gz'
+    )
     return sorted(glob(nifti_pattern))
 
 
@@ -157,7 +150,6 @@ def make_list_of_input_dicts(base_dir: str) -> List[Dict[str, object]]:
         session_ids = [e.get('session', 'N/A') for e in path_entities]
         run_ids = [e.get('run', 'N/A') for e in path_entities]
 
-        # CORRECTED: Create two separate lists now
         image_labels = [
             f'sub-s{sub_id}_ses-{ses_id}_run-{run_id}'
             for sub_id, ses_id, run_id in zip(sub_ids, session_ids, run_ids)
@@ -168,7 +160,7 @@ def make_list_of_input_dicts(base_dir: str) -> List[Dict[str, object]]:
                 'main_title': f'{task_name}_{contrast_name}',
                 'nifti_paths': nifti_paths,
                 'image_labels': image_labels,
-                'vif_labels': vif_labels,  # Add the new VIF labels list
+                'vif_labels': vif_labels,
                 'data_type_label': 'Contrast Estimate',
                 'task_name': task_name,
                 'contrast_name': contrast_name,
@@ -180,11 +172,12 @@ def make_list_of_input_dicts(base_dir: str) -> List[Dict[str, object]]:
     return list_of_input_dicts
 
 
-def process_contrasts(base_dir: str, output_dir: str) -> None:
+def process_contrasts(base_dir: str, output_dir: str, n_cores: int) -> None:
     """Main pipeline for processing contrasts and generating summaries."""
     dicts_list = make_list_of_input_dicts(base_dir)
     if dicts_list:
-        generate_all_data_summaries(dicts_list, output_dir=output_dir)
+        # Pass the number of cores to the processing function
+        generate_all_data_summaries(dicts_list, output_dir=output_dir, n_cores=n_cores)
     else:
         print('No data dictionaries were created; skipping summary generation.')
 
@@ -206,13 +199,19 @@ def parse_arguments():
         required=True,
         help='Directory where the output PDF and CSV files will be saved.',
     )
+    parser.add_argument(
+        '--n_cores',
+        type=int,
+        default=1,
+        help='Number of CPU cores to use for parallel processing. Defaults to 1.',
+    )
     return parser.parse_args()
 
 
 def main():
     """Main execution function."""
     args = parse_arguments()
-    process_contrasts(args.base_dir, args.output_dir)
+    process_contrasts(args.base_dir, args.output_dir, args.n_cores)
 
 
 if __name__ == '__main__':
