@@ -1,14 +1,62 @@
 import argparse
+import json
 import os
 import re
 from collections import defaultdict
 from glob import glob
-from typing import Dict, List, Optional
+from typing import Dict, List, Set, Optional
 
 import numpy as np
 import pandas as pd
 
 from plotting_functions import generate_all_data_summaries
+
+
+def load_exclusions(exclusions_file: str) -> Set[str]:
+    """Load exclusions from JSON file and return a set of exclusion keys."""
+    if not os.path.exists(exclusions_file):
+        raise FileNotFoundError(f'Exclusions file {exclusions_file} does not exist.')
+
+    try:
+        with open(exclusions_file, 'r') as f:
+            exclusions_data = json.load(f)
+        
+        excluded_keys = set()
+        
+        # Process fMRIPrep exclusions
+        for exclusion in exclusions_data.get('fmriprep_exclusions', []):
+            key = f"{exclusion['subject']}_{exclusion['session']}_{exclusion['task']}_{exclusion['run']}"
+            excluded_keys.add(key)
+        
+        # Process behavioral exclusions 
+        for exclusion in exclusions_data.get('behavioral_exclusions', []):
+            key = f"{exclusion['subject']}_{exclusion['session']}_{exclusion['task']}_{exclusion['run']}"
+            excluded_keys.add(key)
+
+        print(f'Loaded {len(excluded_keys)} exclusions from {exclusions_file}')
+        print(f'Excluded keys include: {excluded_keys}\n')
+        return excluded_keys
+        
+    except Exception as e:
+        print(f'Warning: Could not load exclusions from {exclusions_file}: {e}')
+        return set()
+
+
+def is_scan_excluded(path: str, exclusions: Set[str]) -> bool:
+    """Check if a scan should be excluded based on BIDS entities."""
+    if not exclusions:
+        return False
+    
+    entities = parse_bids_entities(path)
+
+    if not all(entities.get(k) for k in ['subject', 'session', 'task', 'run']):
+        return False
+    
+    # Create key variations to check
+    base_key = f"sub-s{entities['subject']}_ses-{entities['session']}_task-{entities['task']}_run-{entities['run']}"
+    keys_to_check = [base_key]
+
+    return any(key in exclusions for key in keys_to_check)
 
 
 def parse_bids_entities(path: str) -> Dict[str, Optional[str]]:
@@ -82,7 +130,7 @@ def find_vif_files(base_dir: str) -> Dict[str, Dict[str, float]]:
 def get_contrast_vif_labels(
     vif_data: Dict[str, Dict[str, float]], nifti_paths: List[str], contrast_name: str
 ) -> List[str]:
-    """Generates VIF labels for a list of NIfTI paths."""
+    """Generates VIF labels for a list of NIFTI paths."""
     vif_labels = []
     for path in nifti_paths:
         entities = parse_bids_entities(path)
@@ -115,12 +163,20 @@ def find_nifti_files(base_dir: str) -> List[str]:
     return sorted(glob(nifti_pattern))
 
 
-def make_list_of_input_dicts(base_dir: str) -> List[Dict[str, object]]:
+def make_list_of_input_dicts(base_dir: str, exclusions: Set[str]) -> List[Dict[str, object]]:
     """Creates a list of dictionaries, one for each contrast to be processed."""
     print(f'Starting data preparation with base_dir: {base_dir}')
 
     nifti_files = find_nifti_files(base_dir)
-    print(f'Found {len(nifti_files)} total NIfTI files.')
+    print(f'Found {len(nifti_files)} total NIFTI files.')
+    
+    # Apply exclusions if provided
+    if exclusions:
+        original_count = len(nifti_files)
+        nifti_files = [f for f in nifti_files if not is_scan_excluded(f, exclusions)]
+        excluded_count = original_count - len(nifti_files)
+        print(f'Excluded {excluded_count} files based on exclusions criteria.')
+        print(f'Remaining {len(nifti_files)} NIFTI files after exclusions.')
 
     vif_data = find_vif_files(base_dir)
     print(f'Found VIF data for {len(vif_data)} subject-session-task combinations.')
@@ -172,12 +228,12 @@ def make_list_of_input_dicts(base_dir: str) -> List[Dict[str, object]]:
     return list_of_input_dicts
 
 
-def process_contrasts(base_dir: str, output_dir: str, n_cores: int) -> None:
+def process_contrasts(base_dir: str, output_dir: str, exclusions_file: str) -> None:
     """Main pipeline for processing contrasts and generating summaries."""
-    dicts_list = make_list_of_input_dicts(base_dir)
+    exclusions = load_exclusions(exclusions_file)
+    dicts_list = make_list_of_input_dicts(base_dir, exclusions)
     if dicts_list:
-        # Pass the number of cores to the processing function
-        generate_all_data_summaries(dicts_list, output_dir=output_dir, n_cores=n_cores)
+        generate_all_data_summaries(dicts_list, output_dir=output_dir)
     else:
         print('No data dictionaries were created; skipping summary generation.')
 
@@ -200,10 +256,10 @@ def parse_arguments():
         help='Directory where the output PDF and CSV files will be saved.',
     )
     parser.add_argument(
-        '--n_cores',
-        type=int,
-        default=1,
-        help='Number of CPU cores to use for parallel processing. Defaults to 1.',
+        '--exclusions-file',
+        type=str,
+        required=True,
+        help='Path to JSON file containing exclusions.',
     )
     return parser.parse_args()
 
@@ -211,7 +267,7 @@ def parse_arguments():
 def main():
     """Main execution function."""
     args = parse_arguments()
-    process_contrasts(args.base_dir, args.output_dir, args.n_cores)
+    process_contrasts(args.base_dir, args.output_dir, args.exclusions_file)
 
 
 if __name__ == '__main__':

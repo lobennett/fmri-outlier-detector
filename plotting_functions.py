@@ -3,7 +3,6 @@ import os
 import shutil
 import time
 import re
-from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -276,8 +275,9 @@ def combine_pngs_to_pdf(png_files: List[str], pdf_path: str) -> None:
     os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
 
     try:
+        # img2pdf.convert() can accept file paths directly
         with open(pdf_path, 'wb') as f:
-            f.write(img2pdf.convert(png_files))
+            f.write(img2pdf.convert([str(png_file) for png_file in png_files]))
         print(f'PDF created successfully: {pdf_path}')
     except Exception as e:
         print(f'Error creating PDF: {e}')
@@ -378,19 +378,10 @@ def generate_all_data_summaries(
     data_dictionaries: List[Dict[str, Any]],
     n_std: float = 2,
     output_dir: str = './data_summary_output',
-    n_cores: int = 1,
 ) -> None:
     """
-    Generate a multi-page PDF summarizing brain imaging data from multiple contrasts
-    using parallel processing.
+    Generate a multi-page PDF summarizing brain imaging data from multiple contrasts.
     """
-    if n_cores > os.cpu_count():
-        print(
-            f'Warning: n_cores ({n_cores}) is greater than the number of available CPUs ({os.cpu_count()}). '
-            f'Using {os.cpu_count()} cores.'
-        )
-        n_cores = os.cpu_count()
-
     temp_output_dir = os.path.join(output_dir, 'temp')
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
@@ -399,22 +390,13 @@ def generate_all_data_summaries(
     png_files = []
     outlier_data_all = []
 
-    with ProcessPoolExecutor(max_workers=n_cores) as executor:
-        futures = {
-            executor.submit(process_single_dictionary, d, temp_output_dir, n_std): d[
-                'main_title'
-            ]
-            for d in data_dictionaries
-        }
-
-        for future in as_completed(futures):
-            main_title = futures[future]
-            try:
-                png_path, summary_df = future.result()
-                png_files.append(png_path)
-                outlier_data_all.append(summary_df)
-            except Exception as exc:
-                print(f'{main_title} generated an exception: {exc}')
+    for data_dict in data_dictionaries:
+        try:
+            png_path, summary_df = process_single_dictionary(data_dict, temp_output_dir, n_std)
+            png_files.append(png_path)
+            outlier_data_all.append(summary_df)
+        except Exception as exc:
+            print(f'{data_dict["main_title"]} generated an exception: {exc}')
 
     print('All contrasts processed. Generating final summary plots and PDF...')
     summary_plot_paths = summarize_outlier_percentages(
