@@ -233,7 +233,7 @@ def process_contrasts(base_dir: str, output_dir: str, exclusions_file: str) -> N
     exclusions = load_exclusions(exclusions_file)
     dicts_list = make_list_of_input_dicts(base_dir, exclusions)
     if dicts_list:
-        generate_all_data_summaries(dicts_list, output_dir=output_dir)
+        generate_all_data_summaries(dicts_list, n_std=3, output_dir=output_dir)
     else:
         print('No data dictionaries were created; skipping summary generation.')
 
